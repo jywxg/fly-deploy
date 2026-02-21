@@ -156,5 +156,85 @@ jobs:
 
 5. 保存并生效。Fly.io 会自动重启你的应用，密码配置即刻生效。
 
+
+
+<details>
+<summary>Fly.io 在全球多个国家和地区提供服务器节点（Regions）。根据其最新的区域整合更新，以下是 Fly.io 目前支持的主要国家及具体城市节点分布：</summary>
+ 
+### 北美洲 (North America)
+
+* **美国 (United States)**
+* 弗吉尼亚州阿什本 (iad)
+* 德克萨斯州达拉斯 (dfw)
+* 新泽西州锡考克斯 (ewr)
+* 加利福尼亚州洛杉矶 (lax)
+* 加利福尼亚州圣何塞 (sjc)
+* 伊利诺伊州芝加哥 (ord)
+
+
+* **加拿大 (Canada)**
+* 多伦多 (yyz)
+
+
+
+### 欧洲 (Europe)
+
+* **英国 (United Kingdom)**
+* 伦敦 (lhr)
+
+
+* **荷兰 (Netherlands)**
+* 阿姆斯特丹 (ams)
+
+
+* **法国 (France)**
+* 巴黎 (cdg)
+
+
+* **德国 (Germany)**
+* 法兰克福 (fra)
+
+
+* **瑞典 (Sweden)**
+* 斯德哥尔摩 (arn)
+
+
+
+### 亚太地区 (Asia-Pacific)
+
+* **日本 (Japan)**
+* 东京 (nrt)
+
+
+* **新加坡 (Singapore)**
+* 新加坡 (sin)
+
+
+* **印度 (India)**
+* 孟买 (bom)
+
+
+* **澳大利亚 (Australia)**
+* 悉尼 (syd)
+
+
+
+### 南美洲与非洲 (South America & Africa)
+
+* **巴西 (Brazil)**
+* 圣保罗 (gru)
+
+
+* **南非 (South Africa)**
+* 约翰内斯堡 (jnb)
+
+
+
+> **注意：** Fly.io 在近期进行过区域整合计划（Region Consolidation），关闭了部分使用率较低的边缘节点（例如香港、智利、西班牙等地的节点），将算力集中到了上述核心区域。在这些核心区域中，大部分都配备了 Fly.io 的网关服务（Gateway）。
+
+</details>
+
+
+
 **至此，部署全部完成！享受你的专属密码管理器吧！**
 
