@@ -1,10 +1,6 @@
-**完全可以！而且这才是最纯粹、最彻底的“云端自动化”玩法。**
+这是一个非常专业且优雅的工程实践！将硬编码的名称提取为环境变量，可以让这份 GitHub Actions 工作流变成一个通用的“部署模板”。以后你在 GitHub 上创建新的仓库来部署其他项目时，只需要把这个文件复制过去，改一下顶部的几个变量名就能直接用了。
 
-既然我们想要彻底抛弃本地令人头疼的命令行，我们就直接让 GitHub Actions 在部署前，顺手把“创建应用”和“分配硬盘”这两个打地基的工作也一并做了。
-
-为了实现这个目标，我们需要在工作流脚本中加入这两条创建命令。但这里有一个巧妙的细节：我们需要在命令后面加上 `|| true`。这样做的原因是，第一次运行流水线时，它会成功创建项目和硬盘；但在你以后**第二次、第三次**更新代码触发部署时，项目和硬盘已经存在了，强行创建会报错。加上 `|| true` 后，GitHub 就会聪明地忽略这个“已存在”的报错，继续顺畅地执行后续的更新部署操作。
-
-我还额外为你加上了 `workflow_dispatch:` 触发器，这样你甚至不需要修改代码，直接在 GitHub 网页上点一个按钮就能随时手动触发部署。
+为了实现这个目标，我们在工作流的顶部统一使用 `env` 声明全局环境变量，然后在执行命令时通过 `${{ env.变量名 }}` 的语法进行引用。我还顺便把“硬盘大小”也提取成了变量，方便你以后部署需要大容量硬盘的项目。
 
 以下是修改后的最终完整版本，没有任何删减或省略：
 
@@ -17,12 +13,19 @@ on:
       - main # 当有代码推送到 main 分支时触发自动部署
   workflow_dispatch: # 添加手动触发按钮，方便在网页上随时直接运行
 
+# 在这里集中管理你的自定义变量，修改此处即可应用到整个部署流程
+env:
+  APP_NAME: "vaultwarden-webdav"  # 自定义应用名称
+  REGION: "sin"                   # 自定义部署节点地区 (例如: sin, nrt, hkg)
+  VOLUME_NAME: "vw_data"          # 自定义持久化存储卷名称
+  VOLUME_SIZE: "1"                # 自定义存储卷大小 (单位：GB)
+
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
     env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }} # 全局注入 Token，供所有步骤使用
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }} # 全局注入 Fly.io 部署 Token
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,12 +34,12 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Create Fly.io App (if not exists)
-        # 尝试创建应用，如果应用已存在则忽略报错继续往下走
-        run: flyctl apps create vaultwarden-webdav --org personal || true
+        # 尝试使用变量创建应用，如果应用已存在则忽略报错继续往下走
+        run: flyctl apps create ${{ env.APP_NAME }} --org personal || true
 
       - name: Create Persistent Volume (if not exists)
-        # 尝试在 sin 节点创建 1GB 存储卷，静默确认 (--yes)，如果已存在则忽略报错
-        run: flyctl volumes create vw_data --app vaultwarden-webdav --region sin --size 1 --yes || true
+        # 尝试使用变量在指定节点创建存储卷，静默确认 (--yes)，如果已存在则忽略报错
+        run: flyctl volumes create ${{ env.VOLUME_NAME }} --app ${{ env.APP_NAME }} --region ${{ env.REGION }} --size ${{ env.VOLUME_SIZE }} --yes || true
 
       - name: Deploy to Fly.io
         # 执行最终的推送和部署
@@ -44,11 +47,14 @@ jobs:
 
 ```
 
-### 你现在需要做的唯一一件事：
+### 💡 搭配使用的重要提醒
 
-1. 将你的 GitHub 仓库中 `.github/workflows/deploy.yml` 文件的内容**替换**为上面这段完整的代码。
-2. 提交保存这个修改。
+当你把这份工作流作为模板用到下一个全新的项目时，请记得同步检查你的 `fly.toml` 文件：
 
-保存的瞬间，GitHub Actions 就会立刻开始工作：它会帮你创建 `vaultwarden-webdav` 这个应用，接着去新加坡节点 (`sin`) 给你切出一块 1GB 名叫 `vw_data` 的硬盘，最后把你的 `fly.toml` 配置稳稳地部署上去。整个过程你再也不需要打开本地终端敲任何代码了。
+因为 Fly.io 的核心是“基础设施即代码”，`fly deploy` 命令在最终执行部署时，依然会读取你代码仓库中的 `fly.toml` 文件。因此，当你修改了上面工作流中的 `APP_NAME`、`REGION` 或 `VOLUME_NAME` 时，请务必确保 `fly.toml` 文件中的以下三处配置也改成了相同的名字，否则部署时可能会产生冲突：
 
-等这个全自动流水线跑通（亮起绿灯）之后，你需要我教你怎么在浏览器里第一次登录你的 Vaultwarden 密码库并进行初始化设置吗？
+1. 第一行的应用名：`app = "你的新应用名"`
+2. 第二行的地区：`primary_region = "你的新地区"`
+3. 底部的存储卷挂载源：`source = "你的新硬盘名"`
+
+现在你的这套架构已经完全实现了自动化、模板化和零成本待机。如果这套工作流成功运行亮起了绿灯，需要我为你梳理一下后续如何通过网页或客户端连接你的密码库吗？
