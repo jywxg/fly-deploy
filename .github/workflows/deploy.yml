@@ -3,12 +3,12 @@ name: Deploy to Fly.io
 on:
   workflow_dispatch: # 仅保留手动触发按钮，完全禁止代码推送时的自动部署
 
-# 在这里集中管理你的自定义变量，修改此处即可应用到整个部署流程
+# 将所有部署相关的变量从 GitHub Secrets 中安全读取
 env:
-  APP_NAME: "vaultwarden-webdav"  # 自定义应用名称
-  REGION: "sin"                   # 自定义部署节点地区 (例如: sin, nrt, hkg)
-  VOLUME_NAME: "vw_data"          # 自定义持久化存储卷名称
-  VOLUME_SIZE: "1"                # 自定义存储卷大小 (单位：GB)
+  APP_NAME: ${{ secrets.APP_NAME }}
+  REGION: ${{ secrets.REGION }}
+  VOLUME_NAME: ${{ secrets.VOLUME_NAME }}
+  VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
 
 jobs:
   deploy:
