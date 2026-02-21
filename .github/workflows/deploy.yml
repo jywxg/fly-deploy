@@ -6,12 +6,19 @@ on:
       - main # 当有代码推送到 main 分支时触发自动部署
   workflow_dispatch: # 添加手动触发按钮，方便在网页上随时直接运行
 
+# 在这里集中管理你的自定义变量，修改此处即可应用到整个部署流程
+env:
+  APP_NAME: "vaultwarden-webdav"  # 自定义应用名称
+  REGION: "sin"                   # 自定义部署节点地区 (例如: sin, nrt, hkg)
+  VOLUME_NAME: "vw_data"          # 自定义持久化存储卷名称
+  VOLUME_SIZE: "1"                # 自定义存储卷大小 (单位：GB)
+
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
     env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }} # 全局注入 Token，供所有步骤使用
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }} # 全局注入 Fly.io 部署 Token
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,12 +27,12 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Create Fly.io App (if not exists)
-        # 尝试创建应用，如果应用已存在则忽略报错继续往下走
-        run: flyctl apps create vaultwarden-webdav --org personal || true
+        # 尝试使用变量创建应用，如果应用已存在则忽略报错继续往下走
+        run: flyctl apps create ${{ env.APP_NAME }} --org personal || true
 
       - name: Create Persistent Volume (if not exists)
-        # 尝试在 sin 节点创建 1GB 存储卷，静默确认 (--yes)，如果已存在则忽略报错
-        run: flyctl volumes create vw_data --app vaultwarden-webdav --region sin --size 1 --yes || true
+        # 尝试使用变量在指定节点创建存储卷，静默确认 (--yes)，如果已存在则忽略报错
+        run: flyctl volumes create ${{ env.VOLUME_NAME }} --app ${{ env.APP_NAME }} --region ${{ env.REGION }} --size ${{ env.VOLUME_SIZE }} --yes || true
 
       - name: Deploy to Fly.io
         # 执行最终的推送和部署
