@@ -35,9 +35,9 @@
 | Name (变量名) | Secret (变量值) | 说明 |
 | --- | --- | --- |
 | `FLY_API_TOKEN` | `你的 Fly.io Token` | 第一步获取的授权密钥 |
-| `APP_NAME` | `vaultwarden-webdav` | 你的应用在全球的唯一名称(和 `fly.toml` 相同) |
-| `REGION` | `sin` | 部署节点代码（如 `sin` 新加坡, `nrt` 东京, `hkg` 香港  (和 `fly.toml` 相同) |
-| `VOLUME_NAME` | `vw_data` | 持久化存储卷名称(和 `fly.toml` 相同) |
+| `APP_NAME` | `vaultwarden-webdav` | 你的应用在全球的唯一名称 (和 `fly.toml` 文件设置相同) |
+| `REGION` | `sin` | 部署节点代码（如 `sin` 新加坡, `nrt` 东京, `hkg` 香港  (和 `fly.toml` 文件设置相同)  |
+| `VOLUME_NAME` | `vw_data` | 持久化存储卷名称 (和 `fly.toml` 文件设置相同)  |
 | `VOLUME_SIZE` | `1` | 存储卷大小（单位：GB。1GB 存密码绰绰有余） |
 
 ---
