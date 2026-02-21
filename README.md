@@ -1,7 +1,3 @@
-这是一份为你量身定制的从零开始部署教程。你可以直接将以下内容完整复制并保存为你的 `README.md` 文件。
-
----
-
 # Vaultwarden on Fly.io 自动化部署指南 (零成本待机方案)
 
 本教程旨在指导你如何利用 GitHub Actions，将 Vaultwarden (轻量级的 Bitwarden 密码服务器) 全自动部署到 Fly.io。
